@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BodyByScience</string>
+    <string name="action_settings">Settings</string>
+    <string name="big3">Big 3 Workout</string>
+    <string name="chest_press">Chest Press</string>
+    <string name="lat_press">Lat Press</string>
+    <string name="leg_press">Leg Press</string>
+    <string name="ok">OK</string>
+    <string name="exercise_not_saved">Exercise NOT saved!, Weight must not be zero and/or time must not be zero.</string>
+    <string name="exercise_saved">Exercise saved!</string>
+    <string name="action_new_workout">New Workout</string>
+
+</resources>

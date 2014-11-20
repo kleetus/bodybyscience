@@ -15,23 +15,28 @@ import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class SummaryItemDialogFragment extends DialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private int workoutId;
     private CursorAdapter adapter;
     private String[] projection;
+    private String title;
 
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle saveInstanceState) {
 
         View view = layoutInflater.inflate(R.layout.workout_item_list, viewGroup, false);
 
-        projection = new String[]{Constants.ROW_ID, Constants.EXERCISE_COLUMN, Constants.WEIGHT_COLUMN, Constants.TUL_COLUMN};
+        projection = new String[]{Constants.ROW_ID, Constants.EXERCISE_COLUMN, Constants.WEIGHT_COLUMN, Constants.TUL_COLUMN, Constants.DATETIME_COLUMN};
 
         Bundle bundle = getArguments();
         workoutId = bundle.getInt(Constants.WORKOUT_NUMBER_COLUMN);
 
-        getDialog().setTitle("Workout #" + workoutId);
+        title = "Workout #" + workoutId;
+        getDialog().setTitle(title);
 
         ListView listView = (ListView) view.findViewById(R.id.summary_list_view);
 
@@ -57,7 +62,7 @@ public class SummaryItemDialogFragment extends DialogFragment implements LoaderM
 
         });
 
-        getLoaderManager().initLoader(2, null, this);
+        getLoaderManager().initLoader(Constants.SUMMARY_ITEM_LOADER, null, this);
         return view;
 
     }
@@ -66,7 +71,7 @@ public class SummaryItemDialogFragment extends DialogFragment implements LoaderM
     public void onResume() {
 
         super.onResume();
-        getLoaderManager().restartLoader(2, null, this);
+        getLoaderManager().restartLoader(Constants.SUMMARY_ITEM_LOADER, null, this);
 
     }
 
@@ -74,7 +79,7 @@ public class SummaryItemDialogFragment extends DialogFragment implements LoaderM
     public void onPause() {
 
         super.onResume();
-        getLoaderManager().destroyLoader(2);
+        getLoaderManager().destroyLoader(Constants.SUMMARY_ITEM_LOADER);
 
     }
 
@@ -85,15 +90,41 @@ public class SummaryItemDialogFragment extends DialogFragment implements LoaderM
                 projection,
                 Constants.WORKOUT_NUMBER_COLUMN + " = ?",
                 new String[]{String.valueOf(workoutId)},
-                null);
+                Constants.DATETIME_COLUMN + getResources().getString(R.string.asc));
 
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
 
+        getDialog().setTitle(title + " " + getCursorDates(cursor));
         adapter.swapCursor(cursor);
 
+    }
+
+    private String getCursorDates(Cursor cursor) {
+
+        if(cursor.getCount() > 0) {
+
+            cursor.moveToFirst();
+
+            Date d = new Date(Long.parseLong(cursor.getString(4)) * 1000);
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat(getShortDate());
+            return dateFormat.format(d);
+
+        }
+
+        return "";
+
+    }
+
+    private String getShortDate() {
+
+        int date = LocaleManager.getInstance().useMetric() ? R.string.date_format_short_international :
+                R.string.date_format_short;
+
+        return getResources().getString(date);
     }
 
 

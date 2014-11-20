@@ -8,10 +8,22 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.CheckBox;
 import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static junit.framework.Assert.assertNotNull;
 
 public class SummaryFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private SummaryCursorAdapter adapter;
@@ -34,13 +46,13 @@ public class SummaryFragment extends ListFragment implements LoaderManager.Loade
 
         setListAdapter(adapter);
 
-        getLoaderManager().initLoader(1, null, this);
 
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup viewGroup, Bundle savedState) {
 
+        getLoaderManager().initLoader(Constants.SUMMARY_LOADER, null, this);
         return inflater.inflate(R.layout.summary_list, viewGroup, false);
 
     }
@@ -49,7 +61,7 @@ public class SummaryFragment extends ListFragment implements LoaderManager.Loade
     public void onPause() {
 
         super.onPause();
-        getLoaderManager().destroyLoader(1);
+        getLoaderManager().destroyLoader(Constants.SUMMARY_LOADER);
 
     }
 
@@ -57,7 +69,15 @@ public class SummaryFragment extends ListFragment implements LoaderManager.Loade
     public void onResume() {
 
         super.onResume();
-        getLoaderManager().restartLoader(1, null, this);
+        getLoaderManager().restartLoader(Constants.SUMMARY_LOADER, null, this);
+
+    }
+
+    @Override
+    public void onActivityCreated(Bundle bundle) {
+
+        super.onActivityCreated(bundle);
+        setupForMultiSelect();
 
     }
 
@@ -72,15 +92,121 @@ public class SummaryFragment extends ListFragment implements LoaderManager.Loade
         bundle.putInt(Constants.WORKOUT_NUMBER_COLUMN,
                 cursor.getInt(1));
         frag.setArguments(bundle);
-        frag.show(getActivity().getFragmentManager(), "tag");
+        frag.show(getActivity().getFragmentManager(), null);
+    }
+
+    private void setupForMultiSelect() {
+
+        final ListView listView = getListView();
+
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+
+        listView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+
+            @Override
+            public void onItemCheckedStateChanged(ActionMode actionMode, int i, long l, boolean b) {
+
+                setVisibility(View.VISIBLE);
+
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+
+                MenuInflater inflater = actionMode.getMenuInflater();
+                inflater.inflate(R.menu.context_menu, menu);
+                return true;
+
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+
+                switch (menuItem.getItemId()) {
+                    case R.id.menu_delete:
+                        deleteSelectedItems();
+                        actionMode.finish();
+                        return true;
+                    default:
+                        return false;
+                }
+
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode actionMode) {
+
+                setVisibility(View.GONE);
+
+            }
+        });
+
+    }
+
+    private void setVisibility(int visibility) {
+
+        ListView lv = getListView();
+
+        for (int i = 0; i < lv.getCount(); i++) {
+
+            View view = lv.getChildAt(i);
+            CheckBox cb = (CheckBox) view.findViewById(R.id.entry_checked);
+            cb.setVisibility(visibility);
+
+        }
+
+    }
+
+    private void deleteSelectedItems() {
+
+        ListView lv = getListView();
+        List<Integer> toDelete = new ArrayList<>();
+
+
+        for (int i = 0; i < lv.getCount(); i++) {
+
+            View view = lv.getChildAt(i);
+            assertNotNull(view);
+            CheckBox chk = (CheckBox) view.findViewById(R.id.entry_checked);
+
+            if (chk.isChecked()) {
+
+                Cursor cursor = adapter.getCursor();
+                cursor.moveToPosition(i);
+                toDelete.add(cursor.getInt(1));
+
+            }
+
+        }
+
+        if (toDelete.size() > 0) {
+            deleteItem(toDelete);
+        }
+
+    }
+
+    private void deleteItem(List<Integer> toDelete) {
+
+        String toDeleteString = TextUtils.join(",", toDelete);
+
+        getActivity().getContentResolver().delete(Constants.LOG_CONTENTURI,
+                Constants.WORKOUT_NUMBER_COLUMN + " IN ( " + toDeleteString + " )", null);
+
+        getLoaderManager().restartLoader(Constants.SUMMARY_LOADER, null, this);
+
     }
 
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
 
-        return new CursorLoader(getActivity(), Constants.LOG_CONTENTURI, projection, "", null,
-                Constants.DATETIME_COLUMN + " ASC");
+        return new CursorLoader(getActivity(), Constants.LOG_CONTENTURI, projection, null, null,
+                Constants.DATETIME_COLUMN + getResources().getString(R.string.asc));
 
     }
 

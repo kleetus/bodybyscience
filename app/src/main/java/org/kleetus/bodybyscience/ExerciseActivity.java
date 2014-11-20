@@ -3,26 +3,152 @@ package org.kleetus.bodybyscience;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import static junit.framework.Assert.assertNotNull;
 
 @SuppressWarnings("deprecation") //still wanted to use the tab bar for now
 public class ExerciseActivity extends Activity {
 
+
     ExerciseFragmentPagerAdapter exerciseFragmentPagerAdapter;
     ViewPager viewPager;
-    final String[] exercises = new String[]{"Chest Press", "Lat Pull-Downs", "Leg Press", "Seated Row", "Overhead Press", "Summary"};
+    final int[] exercises = new int[]{R.string.chest_press,
+            R.string.lat_pull_downs,
+            R.string.leg_press,
+            R.string.seated_row,
+            R.string.overhead_press,
+            R.string.summary};
+
+    int workoutNumber = 0;
+    private String workoutStartTime;
+
+
+    @Override
+    protected void onCreate(Bundle state) {
+
+        super.onCreate(state);
+        setContentView(R.layout.main);
+
+        SharedPreferences prefs = getSharedPreferences(Constants.DATABASE_NAME, MODE_PRIVATE);
+        workoutNumber = prefs.getInt(Constants.WORKOUT_NUMBER_COLUMN, 1);
+        workoutStartTime = prefs.getString(Constants.DATETIME_COLUMN, getCurrentDay());
+
+        setTitle(getCurrentTitle());
+
+        viewPager = (ViewPager) findViewById(R.id.pager);
+
+        exerciseFragmentPagerAdapter = new ExerciseFragmentPagerAdapter(this, viewPager, exercises);
+
+        viewPager.setAdapter(exerciseFragmentPagerAdapter);
+
+        buildTabs();
+
+    }
+
+    private String getCurrentDay() {
+        Calendar cal = Calendar.getInstance();
+        if(!LocaleManager.getInstance().useMetric()) {
+            return (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.DAY_OF_MONTH);
+        } else {
+            return (cal.get(Calendar.DAY_OF_MONTH)) + "-" + (cal.get(Calendar.MONTH) + 1);
+        }
+
+    }
+
+    public int getWorkoutNumber() {
+
+        return workoutNumber;
+    }
+
+
+    private void setNewWorkout() {
+
+        AlertDialog.Builder confirmNewWorkout = new AlertDialog.Builder(this);
+        confirmNewWorkout.setTitle(getResources().getString(R.string.new_workout));
+
+        confirmNewWorkout.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+                workoutNumber++;
+
+                SharedPreferences prefs = getSharedPreferences(Constants.DATABASE_NAME, Context.MODE_PRIVATE);
+                SharedPreferences.Editor edit = prefs.edit();
+                edit.putInt(Constants.WORKOUT_NUMBER_COLUMN, workoutNumber);
+                edit.apply();
+
+                setTitle(getCurrentTitle());
+
+            }
+
+
+        });
+
+        confirmNewWorkout.setNegativeButton("Nope", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+                dialogInterface.cancel();
+
+            }
+        });
+
+        confirmNewWorkout.show();
+
+    }
+
+    private String getCurrentTitle() {
+        return getString(R.string.number_sign) + workoutNumber + getString(R.string.started) + workoutStartTime;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
+
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+
+        switch (menuItem.getItemId()) {
+
+            case R.id.action_new_workout:
+                setNewWorkout();
+                break;
+            case R.id.settings:
+                openSettings();
+                break;
+        }
+
+        return super.onOptionsItemSelected(menuItem);
+
+    }
+
+    private void openSettings() {
+
+
+
+    }
+
 
     protected void buildTabs() {
 
@@ -31,14 +157,15 @@ public class ExerciseActivity extends Activity {
 
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        for (String exercise : exercises) {
+        for (int exercise : exercises) {
             ActionBar.Tab tab = actionBar.newTab()
                     .setText(exercise);
 
             Bundle bundle = new Bundle();
-            bundle.putString(Constants.ACTIVE_TAB, exercise);
+            String exerciseString = getResources().getString(exercise);
+            bundle.putString(Constants.ACTIVE_TAB, exerciseString);
 
-            if (exercise.equalsIgnoreCase("Summary")) {
+            if (exerciseString.equalsIgnoreCase(getString(R.string.summary))) {
                 exerciseFragmentPagerAdapter.addTab(tab, SummaryFragment.class, bundle);
             } else {
                 exerciseFragmentPagerAdapter.addTab(tab, ExerciseFragment.class, bundle);
@@ -50,22 +177,6 @@ public class ExerciseActivity extends Activity {
 
     public ExerciseFragmentPagerAdapter getExerciseFragmentPagerAdapter() {
         return exerciseFragmentPagerAdapter;
-    }
-
-    @Override
-    protected void onCreate(Bundle state) {
-
-        super.onCreate(state);
-        setContentView(R.layout.main);
-
-        viewPager = (ViewPager) findViewById(R.id.pager);
-
-        exerciseFragmentPagerAdapter = new ExerciseFragmentPagerAdapter(this, viewPager, exercises);
-
-        viewPager.setAdapter(exerciseFragmentPagerAdapter);
-
-        buildTabs();
-
     }
 
     @Override
@@ -96,11 +207,11 @@ public class ExerciseActivity extends Activity {
 
         private final ViewPager viewPager;
         private final ArrayList<TabInfo> tabs = new ArrayList<>();
-        private String activeTab;
-        private String[] exercises;
+        private int activeTab;
+        private int[] exercises;
 
 
-        public ExerciseFragmentPagerAdapter(Activity activity, ViewPager pager, String[] exercises) {
+        public ExerciseFragmentPagerAdapter(Activity activity, ViewPager pager, int[] exercises) {
 
             super(activity.getFragmentManager());
             context = activity;
@@ -132,7 +243,7 @@ public class ExerciseActivity extends Activity {
             return tabs;
         }
 
-        public String[] getExercises() {
+        public int[] getExercises() {
             return exercises;
         }
 
@@ -156,8 +267,6 @@ public class ExerciseActivity extends Activity {
         public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
 
             activeTab = exercises[(tab.getPosition())];
-
-            ((Activity) context).setTitle("BBS - " + activeTab);
 
             viewPager.setCurrentItem(tab.getPosition(), true);
         }
@@ -201,22 +310,20 @@ public class ExerciseActivity extends Activity {
 
         public void saveActiveTab() {
 
-            SharedPreferences prefs = context.getSharedPreferences("org.kleetus.bodybyscience", Context.MODE_PRIVATE);
-            prefs.edit().putString(Constants.ACTIVE_TAB, activeTab).apply();
+            SharedPreferences prefs = context.getSharedPreferences(Constants.DATABASE_NAME, Context.MODE_PRIVATE);
+            prefs.edit().putInt(Constants.ACTIVE_TAB, activeTab).apply();
 
         }
 
 
         public void selectSavedTab() {
 
-            SharedPreferences prefs = context.getSharedPreferences("org.kleetus.bodybyscience", Context.MODE_PRIVATE);
-            activeTab = prefs.getString(Constants.ACTIVE_TAB, exercises[0]);
-
-            ((ExerciseActivity) context).setTitle("BBS - " + activeTab);
+            SharedPreferences prefs = context.getSharedPreferences(Constants.DATABASE_NAME, Context.MODE_PRIVATE);
+            activeTab = prefs.getInt(Constants.ACTIVE_TAB, exercises[0]);
 
             for (int i = 0; i < exercises.length; i++) {
 
-                if (exercises[i].equalsIgnoreCase(activeTab)) {
+                if (exercises[i] == (activeTab)) {
 
                     viewPager.setCurrentItem(i, true);
                     return;

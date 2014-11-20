@@ -44,6 +44,8 @@ public class ExpressoExerciseActivityTest extends ActivityInstrumentationTestCas
 
     }
 
+
+
     //test that we let the user know that they can't save an exercise result if the weight is 0 or the time is 0
     public void testErrorToastPopsUpWhenNoTimeOrWeightSpecified() {
 

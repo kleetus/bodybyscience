@@ -23,7 +23,6 @@ public class Constants {
     public static final String WORKOUT_NUMBER_COLUMN = "workoutnumber";
     public static final String SUM_EXERCISE_WEIGHT = "SUM(" + WEIGHT_COLUMN + ")";
     public static final String SUM_TUL = "SUM(" + TUL_COLUMN + ")";
-    public static final long TWENTY_FOUR_HOURS = 24 * 60 * 60;
     public static final String TIME_ON_CLOCK = "timeOnClock";
     public static final String START_BUTTON_STATE = "startButtonState";
     public static final String PRIMARY_KEY_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL";
@@ -31,6 +30,10 @@ public class Constants {
     public static final String INTEGER_TYPE = "INTEGER NOT NULL";
     public static final String TEXT_TYPE = "TEXT NOT NULL";
     public static final String TEST_DATABASE_NAME = "bodybysciencetest";
+    public static final int WORKOUT_NUMBER_LOADER = 3;
+    public static final int SUMMARY_LOADER = 1;
+    public static final int EXERCISE_LOADER = 0;
+    public static final int SUMMARY_ITEM_LOADER = 2;
 
     public static final String CREATE_LOGS = "CREATE TABLE" + " " +
             Constants.LOGS_TABLE
@@ -62,5 +65,7 @@ public class Constants {
 
 
     public static final int DATABASE_VERSION = 13;
+
+
 
 }

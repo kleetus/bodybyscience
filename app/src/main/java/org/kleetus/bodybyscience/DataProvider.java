@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-import android.os.SystemClock;
 
 public class DataProvider extends ContentProvider {
 
@@ -40,7 +39,7 @@ public class DataProvider extends ContentProvider {
 
         String groupBy = null;
 
-        if (selection.length() < 1) {
+        if (null == selection || selection.length() < 1) {
             groupBy = Constants.WORKOUT_NUMBER_COLUMN;
         }
 
@@ -71,7 +70,6 @@ public class DataProvider extends ContentProvider {
 
         try {
 
-            contentValues.put(Constants.WORKOUT_NUMBER_COLUMN, getWorkoutNumber());
             contentValues.put(Constants.DATETIME_COLUMN, System.currentTimeMillis() / 1000L);
             id = db.insertOrThrow(Constants.LOGS_TABLE, null, contentValues);
 
@@ -89,38 +87,6 @@ public class DataProvider extends ContentProvider {
 
     }
 
-    private int getWorkoutNumber() {
-
-        int workoutNumber = 1;
-
-        SQLiteDatabase db = helper.getReadableDatabase();
-
-        Cursor cursor = db.query(
-                Constants.LOGS_TABLE,
-                new String[]{Constants.WORKOUT_NUMBER_COLUMN, Constants.DATETIME_COLUMN},
-                null, null, null, null, Constants.DATETIME_COLUMN + " DESC", "1");
-
-        if (cursor.getCount() > 0) {
-
-            cursor.moveToFirst();
-            workoutNumber = cursor.getInt(0);
-
-            long lastTime = cursor.getLong(1);
-            long timeNow = System.currentTimeMillis() / 1000L;
-            long diff = (timeNow - lastTime);
-
-            if (diff > Constants.TWENTY_FOUR_HOURS) {
-
-                workoutNumber++;
-
-            }
-
-        }
-
-        return workoutNumber;
-
-    }
-
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
 
@@ -130,11 +96,11 @@ public class DataProvider extends ContentProvider {
 
         try {
 
-            db.delete(Constants.LOGS_TABLE, selection, selectionArgs);
+            int res = db.delete(Constants.LOGS_TABLE, selection, selectionArgs);
 
             getContext().getContentResolver().notifyChange(uri, null, false);
             db.setTransactionSuccessful();
-            return 0;
+            return res;
 
         } finally {
 

@@ -17,6 +17,8 @@ import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import static junit.framework.Assert.assertNotNull;
+
 public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private Boolean startButtonState = false;
@@ -26,7 +28,7 @@ public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCa
     private long timePaused = 0;
     private EditText weight;
     private String activeTab;
-    private int workoutNumber = 1;
+
 
     @Override
     public void onCreate(Bundle state) {
@@ -34,7 +36,9 @@ public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCa
         super.onCreate(state);
 
         Bundle args = getArguments();
-        activeTab = args.getString(Constants.ACTIVE_TAB, "Chest Press");
+        activeTab = args.getString(Constants.ACTIVE_TAB, getString(R.string.chest_press));
+
+        setHasOptionsMenu(true);
         getLoaderManager().initLoader(0, null, this);
 
     }
@@ -62,7 +66,7 @@ public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCa
             chrono.start();
         }
 
-        getLoaderManager().restartLoader(0, null, this);
+        getLoaderManager().restartLoader(Constants.EXERCISE_LOADER, null, this);
 
     }
 
@@ -78,7 +82,7 @@ public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCa
 
         }
 
-        getLoaderManager().destroyLoader(0);
+        getLoaderManager().destroyLoader(Constants.EXERCISE_LOADER);
 
     }
 
@@ -111,12 +115,18 @@ public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCa
             timeOnClock = state.getLong(Constants.TIME_ON_CLOCK);
 
             if (shouldStart) {
+
                 startChrono();
+
             } else {
+
                 stopChrono();
+                
             }
 
         }
+
+        assertNotNull(logButton);
 
         logButton.setOnClickListener(new View.OnClickListener() {
 
@@ -177,6 +187,7 @@ public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCa
         return fragmentView;
     }
 
+
     private void stopChrono() {
 
         if (!startButtonState) {
@@ -225,7 +236,14 @@ public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCa
         cv.put(Constants.WEIGHT_COLUMN, getWeight());
         cv.put(Constants.TUL_COLUMN, timeOnClock);
         cv.put(Constants.EXERCISE_COLUMN, activeTab);
+        cv.put(Constants.WORKOUT_NUMBER_COLUMN, getWorkoutNumber());
         return cv;
+
+    }
+
+    private int getWorkoutNumber() {
+
+        return ((ExerciseActivity)getActivity()).getWorkoutNumber();
 
     }
 
@@ -280,7 +298,7 @@ public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCa
                 new String[]{Constants.WEIGHT_COLUMN, Constants.WORKOUT_NUMBER_COLUMN, Constants.DATETIME_COLUMN},
                 Constants.EXERCISE_COLUMN + " = ?",
                 new String[]{activeTab},
-                Constants.DATETIME_COLUMN + " DESC");
+                Constants.DATETIME_COLUMN + getResources().getString(R.string.desc));
 
     }
 
@@ -298,8 +316,6 @@ public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCa
             weight.setText(String.valueOf(cursor.getInt(0)));
 
         }
-
-        workoutNumber = cursor.getInt(1);
 
     }
 

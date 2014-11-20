@@ -38,7 +38,10 @@ public class SummaryCursorAdapter extends SimpleCursorAdapter {
 
         long date = cursor.getLong(2);
 
-        String dateString = new SimpleDateFormat("MM/dd/yy").format(new Date(date * 1000));
+        int date_int = LocaleManager.getInstance().useMetric() ? R.string.date_format_international :
+                R.string.date_format;
+
+        String dateString = new SimpleDateFormat(context.getString(date_int)).format(new Date(date * 1000));
 
         TextView dateView = (TextView) view.findViewById(R.id.workout_date);
         TextView workoutNumber = (TextView) view.findViewById(R.id.workout_number);
@@ -46,9 +49,9 @@ public class SummaryCursorAdapter extends SimpleCursorAdapter {
         TextView tul = (TextView) view.findViewById(R.id.tul_summary);
 
         dateView.setText(dateString);
-        workoutNumber.setText("#" + cursor.getInt(1));
-        weight.setText(cursor.getInt(3) + "lbs");
-        tul.setText(cursor.getInt(4)/1000.0 + " sec total");
+        workoutNumber.setText(context.getString(R.string.number_sign) + cursor.getInt(1));
+        weight.setText(cursor.getInt(3) + context.getString(R.string.weight_format));
+        tul.setText(cursor.getInt(4) / 1000.0 + context.getString(R.string.seconds_total));
 
     }
 }

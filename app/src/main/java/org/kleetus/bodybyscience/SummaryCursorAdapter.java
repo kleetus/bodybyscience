@@ -50,7 +50,8 @@ public class SummaryCursorAdapter extends SimpleCursorAdapter {
 
         dateView.setText(dateString);
         workoutNumber.setText(context.getString(R.string.number_sign) + cursor.getInt(1));
-        weight.setText(cursor.getInt(3) + context.getString(R.string.weight_format));
+        int format = LocaleManager.getInstance().useMetric() ? R.string.weight_format_metric : R.string.weight_format;
+        weight.setText(cursor.getInt(3) + context.getString(format));
         tul.setText(cursor.getInt(4) / 1000.0 + context.getString(R.string.seconds_total));
 
     }

@@ -38,9 +38,6 @@ public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCa
         Bundle args = getArguments();
         activeTab = args.getString(Constants.ACTIVE_TAB, getString(R.string.chest_press));
 
-        setHasOptionsMenu(true);
-        getLoaderManager().initLoader(0, null, this);
-
     }
 
     @Override
@@ -128,6 +125,8 @@ public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCa
 
         assertNotNull(logButton);
 
+        logButton.setText(logButton.getText() + " " + activeTab);
+
         logButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -139,7 +138,6 @@ public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCa
             }
 
         });
-
 
         startButton.setOnClickListener(new View.OnClickListener() {
 
@@ -195,7 +193,6 @@ public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCa
         }
 
         startButtonState = false;
-        startButton.setText(Constants.RESTART);
         chrono.stop();
         timeOnClock = SystemClock.elapsedRealtime() - chrono.getBase();
 
@@ -208,7 +205,6 @@ public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCa
         }
 
         startButtonState = true;
-        startButton.setText(Constants.STOP);
         chrono.setBase(SystemClock.elapsedRealtime() - timeOnClock);
         chrono.start();
 
@@ -219,14 +215,14 @@ public class ExerciseFragment extends Fragment implements LoaderManager.LoaderCa
 
         if (timeOnClock == 0 || getWeight() == 0) {
 
-            Toast.makeText(getActivity(), getResources().getString(R.string.exercise_not_saved), Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getResources().getString(R.string.exercise_not_saved), Toast.LENGTH_SHORT).show();
             return;
 
         }
 
         getActivity().getContentResolver().insert(Constants.LOG_CONTENTURI, getFormValues());
 
-        Toast.makeText(getActivity(), getResources().getString(R.string.exercise_saved), Toast.LENGTH_LONG).show();
+        Toast.makeText(getActivity(), getResources().getString(R.string.exercise_saved), Toast.LENGTH_SHORT).show();
 
     }
 

@@ -17,15 +17,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.CheckBox;
 import android.widget.ListView;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static junit.framework.Assert.assertNotNull;
-
 public class SummaryFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
     private SummaryCursorAdapter adapter;
     private String[] projection;
 
@@ -37,15 +32,15 @@ public class SummaryFragment extends ListFragment implements LoaderManager.Loade
         projection = new String[]{Constants.ROW_ID,
                 Constants.WORKOUT_NUMBER_COLUMN,
                 Constants.DATETIME_COLUMN,
-                Constants.SUM_EXERCISE_WEIGHT,
-                Constants.SUM_TUL};
+                Constants.WEIGHT_COLUMN,
+                Constants.TUL_COLUMN,
+                Constants.EXERCISE_COLUMN};
 
         adapter = new SummaryCursorAdapter(getActivity(), R.layout.summary_item, null,
                 projection, new int[]{0, R.id.workout_number,
-                R.id.workout_date, R.id.weight_summary, R.id.tul_summary}, 0);
+                R.id.workout_date, R.id.weight_summary, R.id.tul_summary, R.id.exercise_name}, 0);
 
         setListAdapter(adapter);
-
 
     }
 
@@ -81,20 +76,6 @@ public class SummaryFragment extends ListFragment implements LoaderManager.Loade
 
     }
 
-    @Override
-    public void onListItemClick(ListView l, View v, int i, long id) {
-
-        SummaryItemDialogFragment frag = new SummaryItemDialogFragment();
-        Cursor cursor = adapter.getCursor();
-        cursor.moveToPosition(i);
-
-        Bundle bundle = new Bundle();
-        bundle.putInt(Constants.WORKOUT_NUMBER_COLUMN,
-                cursor.getInt(1));
-        frag.setArguments(bundle);
-        frag.show(getActivity().getFragmentManager(), null);
-    }
-
     private void setupForMultiSelect() {
 
         final ListView listView = getListView();
@@ -106,7 +87,7 @@ public class SummaryFragment extends ListFragment implements LoaderManager.Loade
             @Override
             public void onItemCheckedStateChanged(ActionMode actionMode, int i, long l, boolean b) {
 
-                setVisibility(View.VISIBLE);
+                adapter.openEditMode();
 
             }
 
@@ -129,7 +110,7 @@ public class SummaryFragment extends ListFragment implements LoaderManager.Loade
 
                 switch (menuItem.getItemId()) {
                     case R.id.menu_delete:
-                        deleteSelectedItems();
+                        deleteItems();
                         actionMode.finish();
                         return true;
                     default:
@@ -141,63 +122,25 @@ public class SummaryFragment extends ListFragment implements LoaderManager.Loade
             @Override
             public void onDestroyActionMode(ActionMode actionMode) {
 
-                setVisibility(View.GONE);
+                adapter.closeEditMode();
 
             }
         });
 
     }
 
-    private void setVisibility(int visibility) {
+    private void deleteItems() {
 
-        ListView lv = getListView();
-
-        for (int i = 0; i < lv.getCount(); i++) {
-
-            View view = lv.getChildAt(i);
-            CheckBox cb = (CheckBox) view.findViewById(R.id.entry_checked);
-            cb.setVisibility(visibility);
-
+        if (adapter.checkedList.size() < 1) {
+            return;
         }
 
-    }
-
-    private void deleteSelectedItems() {
-
-        ListView lv = getListView();
-        List<Integer> toDelete = new ArrayList<>();
-
-
-        for (int i = 0; i < lv.getCount(); i++) {
-
-            View view = lv.getChildAt(i);
-            assertNotNull(view);
-            CheckBox chk = (CheckBox) view.findViewById(R.id.entry_checked);
-
-            if (chk.isChecked()) {
-
-                Cursor cursor = adapter.getCursor();
-                cursor.moveToPosition(i);
-                toDelete.add(cursor.getInt(1));
-
-            }
-
-        }
-
-        if (toDelete.size() > 0) {
-            deleteItem(toDelete);
-        }
-
-    }
-
-    private void deleteItem(List<Integer> toDelete) {
-
-        String toDeleteString = TextUtils.join(",", toDelete);
+        String toDeleteString = TextUtils.join(",", adapter.checkedList);
 
         getActivity().getContentResolver().delete(Constants.LOG_CONTENTURI,
-                Constants.WORKOUT_NUMBER_COLUMN + " IN ( " + toDeleteString + " )", null);
+                Constants.ROW_ID + " IN (" + toDeleteString + ")", null);
 
-        getLoaderManager().restartLoader(Constants.SUMMARY_LOADER, null, this);
+        adapter.checkedList.clear();
 
     }
 

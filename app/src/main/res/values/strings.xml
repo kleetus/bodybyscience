@@ -16,7 +16,6 @@
     <string name="action_new_workout">New</string>
     <string name="new_workout">New Workout (previous workout is closed out)</string>
     <string name="number_sign">#</string>
-    <string name="started">" on "</string>
     <string name="asc">" ASC"</string>
     <string name="date_format">MM/dd/yy</string>
     <string name="date_format_international">dd-MM-yy</string>

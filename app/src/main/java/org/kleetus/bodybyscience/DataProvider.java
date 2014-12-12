@@ -37,16 +37,10 @@ public class DataProvider extends ContentProvider {
 
         SQLiteDatabase db = helper.getReadableDatabase();
 
-        String groupBy = null;
-
-        if (null == selection || selection.length() < 1) {
-            groupBy = Constants.WORKOUT_NUMBER_COLUMN;
-        }
-
         Cursor cursor = db.query(
                 Constants.LOGS_TABLE,
                 projection,
-                selection, selectionArgs, groupBy, null, sortOrder);
+                selection, selectionArgs, null, null, sortOrder);
 
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
 

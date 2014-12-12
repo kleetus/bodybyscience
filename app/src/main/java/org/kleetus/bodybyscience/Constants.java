@@ -29,10 +29,8 @@ public class Constants {
     public static final String UNIQUE_INT_TYPE = "INT UNIQUE NOT NULL";
     public static final String INTEGER_TYPE = "INTEGER NOT NULL";
     public static final String TEXT_TYPE = "TEXT NOT NULL";
-    public static final String TEST_DATABASE_NAME = "bodybysciencetest";
-    public static final int WORKOUT_NUMBER_LOADER = 3;
-    public static final int SUMMARY_LOADER = 1;
     public static final int EXERCISE_LOADER = 0;
+    public static final int SUMMARY_LOADER = 1;
     public static final int SUMMARY_ITEM_LOADER = 2;
 
     public static final String CREATE_LOGS = "CREATE TABLE" + " " +
@@ -44,7 +42,7 @@ public class Constants {
             + ", " +
             Constants.DATETIME_COLUMN
             + " " +
-            UNIQUE_INT_TYPE
+            INTEGER_TYPE
             + ", " +
             Constants.WEIGHT_COLUMN
             + " " +
@@ -64,7 +62,7 @@ public class Constants {
             + ")";
 
 
-    public static final int DATABASE_VERSION = 13;
+    public static final int DATABASE_VERSION = 14;
 
 
 

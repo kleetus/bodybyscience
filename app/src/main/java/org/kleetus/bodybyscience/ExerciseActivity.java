@@ -62,7 +62,7 @@ public class ExerciseActivity extends Activity {
 
     private String getCurrentDay() {
         Calendar cal = Calendar.getInstance();
-        if(!LocaleManager.getInstance().useMetric()) {
+        if (!LocaleManager.getInstance().useMetric()) {
             return (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.DAY_OF_MONTH);
         } else {
             return (cal.get(Calendar.DAY_OF_MONTH)) + "-" + (cal.get(Calendar.MONTH) + 1);
@@ -113,7 +113,7 @@ public class ExerciseActivity extends Activity {
     }
 
     private String getCurrentTitle() {
-        return getString(R.string.number_sign) + workoutNumber + getString(R.string.started) + workoutStartTime;
+        return getString(R.string.number_sign) + workoutNumber + " " + workoutStartTime;
     }
 
     @Override
@@ -134,21 +134,11 @@ public class ExerciseActivity extends Activity {
             case R.id.action_new_workout:
                 setNewWorkout();
                 break;
-            case R.id.settings:
-                openSettings();
-                break;
         }
 
         return super.onOptionsItemSelected(menuItem);
 
     }
-
-    private void openSettings() {
-
-
-
-    }
-
 
     protected void buildTabs() {
 
@@ -175,10 +165,6 @@ public class ExerciseActivity extends Activity {
 
     }
 
-    public ExerciseFragmentPagerAdapter getExerciseFragmentPagerAdapter() {
-        return exerciseFragmentPagerAdapter;
-    }
-
     @Override
     protected void onPause() {
 
@@ -201,10 +187,6 @@ public class ExerciseActivity extends Activity {
         private final Context context;
         private final ActionBar actionBar;
 
-        public ViewPager getViewPager() {
-            return viewPager;
-        }
-
         private final ViewPager viewPager;
         private final ArrayList<TabInfo> tabs = new ArrayList<>();
         private int activeTab;
@@ -226,10 +208,6 @@ public class ExerciseActivity extends Activity {
         public static final class TabInfo {
             private final Class<?> klass;
 
-            public Bundle getArgs() {
-                return args;
-            }
-
             private final Bundle args;
 
             TabInfo(Class<?> klass, Bundle args) {
@@ -237,14 +215,6 @@ public class ExerciseActivity extends Activity {
                 this.args = args;
             }
 
-        }
-
-        public ArrayList<TabInfo> getTabs() {
-            return tabs;
-        }
-
-        public int[] getExercises() {
-            return exercises;
         }
 
         @Override

@@ -2,8 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:padding="10dp">
+    android:orientation="horizontal">
 
     <CheckBox
         android:id="@+id/entry_checked"
@@ -11,12 +10,27 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
         android:layout_marginRight="10dp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:layout_gravity="center_vertical"
         android:src="@android:drawable/btn_radio"
         android:visibility="gone" />
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/summary_row_index"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="#FFF"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:textColor="#333"
+        android:textSize="34sp" />
+
+    <LinearLayout
+        android:id="@+id/summary_first_line"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
         android:orientation="vertical">
 
         <LinearLayout
@@ -40,6 +54,15 @@
                 android:layout_marginEnd="10dp"
                 android:layout_marginRight="10dp"
                 android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/exercise_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:textSize="14sp" />
+
         </LinearLayout>
 
         <LinearLayout

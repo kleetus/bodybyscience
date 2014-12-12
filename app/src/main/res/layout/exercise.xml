@@ -40,14 +40,14 @@
         <Button
             android:id="@+id/start"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:layout_weight=".5"
             android:text="@string/start" />
 
         <Button
             android:id="@+id/reset"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:layout_weight=".5"
             android:text="@string/reset" />
 
@@ -56,5 +56,10 @@
 
     <include layout="@layout/chrono" />
 
+    <Button
+        android:id="@+id/log"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp    "
+        android:text="Log" />
 
 </LinearLayout>
